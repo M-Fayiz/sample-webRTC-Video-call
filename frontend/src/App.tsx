@@ -11,10 +11,13 @@ export default function App() {
   const [camOff, setCamOff] = useState(false);
   const [sharing, setSharing] = useState(false);
 
-  const signalingURL = "http://localhost:4000";
-
+  const signalingURL =  import.meta.env.VITE_SERVER_URL;
+  console.log('signal ',signalingURL)
   const join = async () => {
+
+   
     if (!localRef.current || !remoteRef.current) return;
+   
     const c = new P2PCall({
       roomId,
       signalingURL,
@@ -23,6 +26,7 @@ export default function App() {
       onConnected: () => console.log("Connected"),
       onDisconnected: () => console.log("Disconnected"),
     });
+    console.log('c',c)
     await c.init();
     setCall(c);
     setJoined(true);
@@ -61,51 +65,99 @@ export default function App() {
     if (localRef.current) localRef.current.muted = true;
   }, []);
 
-  return (
-    <div style={{ fontFamily: "system-ui", padding: 16 }}>
-      <h1>1:1 WebRTC (MERN) – Minimal Demo</h1>
+   return (
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans p-6 flex flex-col items-center">
+  
+      <h1 className="text-3xl font-semibold mb-6 tracking-tight text-gray-800">
+        1:1 Video Call – <span className="text-gray-500">MERN WebRTC</span>
+      </h1>
 
-      <div style={{ marginBottom: 12 }}>
-        <input
-          value={roomId}
-          onChange={(e) => setRoomId(e.target.value)}
-          placeholder="Room ID"
-          style={{ padding: 8, width: 240 }}
-        />
-        {!joined ? (
-          <button onClick={join} style={{ marginLeft: 8, padding: "8px 12px" }}>Join</button>
-        ) : (
-          <>
-            <button onClick={startCall} style={{ marginLeft: 8, padding: "8px 12px" }}>Call</button>
-            <button onClick={toggleMic} style={{ marginLeft: 8, padding: "8px 12px" }}>
-              {muted ? "Unmute" : "Mute"}
+  
+      <div className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-lg border border-gray-200 mb-8">
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <input
+            value={roomId}
+            onChange={(e) => setRoomId(e.target.value)}
+            placeholder="Enter Room ID"
+            className="flex-1 px-4 py-3 rounded-lg bg-gray-100 text-gray-800 placeholder-gray-500 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-all"
+          />
+          {!joined ? (
+            <button
+              onClick={join}
+              className="px-5 py-3 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-all"
+            >
+              Join
             </button>
-            <button onClick={toggleCam} style={{ marginLeft: 8, padding: "8px 12px" }}>
-              {camOff ? "Camera On" : "Camera Off"}
-            </button>
-            <button onClick={toggleShare} style={{ marginLeft: 8, padding: "8px 12px" }}>
-              {sharing ? "Stop Share" : "Share Screen"}
-            </button>
-            <button onClick={hangup} style={{ marginLeft: 8, padding: "8px 12px", color: "white", background: "crimson" }}>
-              End
-            </button>
-          </>
-        )}
+          ) : (
+            <div className="flex flex-wrap justify-center gap-3 mt-3 sm:mt-0">
+              <button
+                onClick={startCall}
+                className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium transition-all"
+              >
+                Call
+              </button>
+              <button
+                onClick={toggleMic}
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium transition-all"
+              >
+                {muted ? "Unmute" : "Mute"}
+              </button>
+              <button
+                onClick={toggleCam}
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg font-medium transition-all"
+              >
+                {camOff ? "Camera On" : "Camera Off"}
+              </button>
+              <button
+                onClick={toggleShare}
+                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-all"
+              >
+                {sharing ? "Stop Share" : "Share Screen"}
+              </button>
+              <button
+                onClick={hangup}
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-all"
+              >
+                End
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        <div>
-          <h3>Local</h3>
-          <video ref={localRef} autoPlay playsInline style={{ width: "100%", background: "#000" }} />
+  
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-6xl">
+    
+        <div className="bg-white rounded-2xl overflow-hidden shadow-md border border-gray-200">
+          <div className="px-4 py-2 bg-gray-100 text-gray-600 text-sm font-medium">
+            Local Stream
+          </div>
+          <video
+            ref={localRef}
+            autoPlay
+            playsInline
+            className="w-full h-[320px] bg-black object-cover rounded-b-2xl"
+          />
         </div>
-        <div>
-          <h3>Remote</h3>
-          <video ref={remoteRef} autoPlay playsInline style={{ width: "100%", background: "#000" }} />
+
+     
+        <div className="bg-white rounded-2xl overflow-hidden shadow-md border border-gray-200">
+          <div className="px-4 py-2 bg-gray-100 text-gray-600 text-sm font-medium">
+            Remote Stream
+          </div>
+          <video
+            ref={remoteRef}
+            autoPlay
+            playsInline
+            className="w-full h-[320px] bg-black object-cover rounded-b-2xl"
+          />
         </div>
       </div>
 
-      <p style={{ marginTop: 12, opacity: 0.8 }}>
-        Open this page in two tabs/devices with the same Room ID. In one tab, press <b>Join</b> then <b>Call</b>.
+
+      <p className="mt-6 text-gray-500 text-sm max-w-lg text-center">
+        💡 Open this page in two tabs or devices with the same <b>Room ID</b>.
+        In one tab, click <b>Join</b> then <b>Call</b> to connect.
       </p>
     </div>
   );
